@@ -29,7 +29,7 @@ public enum SortingAlgorithm {
 		for (int i = 1; i <= A.length - 1; i++) {
 			Movie x = A[i];
 			for (int j = 0; j < i; j++)
-				if ((A[j].getTitle).compareTo(x.getTitle) > 0) break;
+				if ((A[j].getTitle()).compareTo(x.getTitle()) > 0) break;
 			if (j < i) {
 				for (int t = i; t > j; t--) A[t] = A[t - 1];
 				A[j] = x;
