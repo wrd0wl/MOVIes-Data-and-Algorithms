@@ -21,7 +21,6 @@ public class MovidaCore{
                 String[] scanData = new String[5];
                 for (int i = 0; i < 5; i++) {
                     scanData[i] = scan.nextLine().split(":")[1].trim();
-                    System.out.println(scanData[i]);
                 }
                 scanTitle = scanData[0];
                 scanYear = Integer.parseInt(scanData[1]);
