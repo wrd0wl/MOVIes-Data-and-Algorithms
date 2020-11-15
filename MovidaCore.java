@@ -5,7 +5,11 @@ import java.util.Scanner;
 
 public class MovidaCore{
 
-    public static void loadFromFile(File f) { //remove static
+    public class MovidaCore{
+
+    static ArrayList<Movie> MovieList = new ArrayList<>();
+
+    public static void loadFromFile(File f) { // remove static
         try {
             String scanTitle;
             Integer scanYear;
@@ -15,21 +19,23 @@ public class MovidaCore{
             Scanner scan = new Scanner(f);
             while (scan.hasNextLine()) {
                 String[] scanData = new String[5];
-                for(int i = 0; i < 5; i++){
+                for (int i = 0; i < 5; i++) {
                     scanData[i] = scan.nextLine().split(":")[1].trim();
+                    System.out.println(scanData[i]);
                 }
                 scanTitle = scanData[0];
                 scanYear = Integer.parseInt(scanData[1]);
                 scanDirector = scanData[2];
                 scanCast = scanData[3].split(", ");
                 scanVotes = Integer.parseInt(scanData[4]);
-                System.out.println(scanTitle);
-                System.out.println(scanYear);
-                System.out.println(scanDirector);
-                for(int i = 0; i < scanCast.length; i++){
-                    System.out.println(scanCast[i]);
+
+                Person director = new Person(scanDirector);
+                Person[] cast = new Person[scanCast.length];
+                Movie movie = new Movie(scanTitle, scanYear, scanVotes, cast, director);
+                MovieList.add(movie);
+                if(scan.hasNextLine()){
+                    scan.nextLine();
                 }
-                System.out.println(scanVotes);
             }
             scan.close();
 
@@ -38,6 +44,7 @@ public class MovidaCore{
             //throw new MovidaFileException();
         }
     }
+
 
     // TESTING PART. SOON WILL BE REMOVED
     public static void main(String[] args) throws FileNotFoundException {
