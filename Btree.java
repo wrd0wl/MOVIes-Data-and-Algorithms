@@ -36,7 +36,7 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     @Override
     public V search(K key) {
         if(key == null)
-        throw new IllegalArgumentException("calls search() with a null key");
+        throw new IllegalArgumentException("calls search() with an empty key");
          return search(root, key);
 
     }
@@ -55,7 +55,7 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
 
     public void insert(K key, V val) {
         if (key == null) 
-            throw new IllegalArgumentException("calls insert() with a null key");
+            throw new IllegalArgumentException("calls insert() with an empty key");
         if (val == null) {
             delete(key);
             return;
@@ -89,7 +89,7 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     @Override
     public V delete(K key) {
         if (key == null) 
-        throw new IllegalArgumentException("calls delete() with a null key");
+        throw new IllegalArgumentException("calls delete() with an empty key");
         root = delete(root, key);
         return root.value;
     }
