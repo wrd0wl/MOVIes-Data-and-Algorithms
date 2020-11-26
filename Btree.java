@@ -54,7 +54,8 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     }
 
     public void insert(K key, V val) {
-        if (key == null) throw new IllegalArgumentException("calls put() with a null key");
+        if (key == null) 
+            throw new IllegalArgumentException("calls insert() with a null key");
         if (val == null) {
             delete(key);
             return;
