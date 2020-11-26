@@ -15,19 +15,18 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     }
     public Btree() {
     }
-
-    public boolean isEmpty(BtreeNode x) {
-        return size(x) == 0;    //Restituisce vero se non contiente alcun valore
-    }
-
-
     
     private int size(BtreeNode x) { 
         if (x == null) return 0;  
         else return x.size;   //Restituisce la grandezza del nodo
     }
 
-    private BtreeNode min(BtreeNode x) {  //Restituisce la chiave minore
+    public boolean isEmpty(BtreeNode x) {
+        return size(x) == 0;    //Restituisce vero se non contiente alcun valore
+    }
+
+
+     private BtreeNode min(BtreeNode x) {  //Restituisce la chiave minore
         if (x.left == null) 
         return x; 
         else                
