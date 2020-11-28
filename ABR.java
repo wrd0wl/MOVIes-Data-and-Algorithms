@@ -58,4 +58,45 @@ public class ABR <K extends Comparable <K>, V> implements IDictionary <K, V> {
             return root.value;
         }
     }
+
+    public void delete(K key){
+        root = deleteRec(key, root);
+    }
+
+    private Node deleteRec(K key, Node root){
+        if (root == null){
+            return root;
+        }
+
+        if(key.compareTo(root.key) < 0){
+            root.left = deleteRec(key, root.left);
+        }
+        else if(key.compareTo(root.key) > 0){
+            root.right = deleteRec(key, root.right);
+        }
+        else{
+            //delete node with one child ot without children
+            if(root.left == null){
+                return root.right;
+            }
+            else if(root.right == null){
+                return root.left;
+            }
+
+            //delete node with two children
+            Node successor = minSubtree(root.right);
+            root.key = successor.key;
+            root.value = successor.value;
+            root.right = deleteRec(root.key, root.right);
+        }
+        return root;
+
+    }
+
+    private Node minSubtree(Node root){
+        while(root.left != null){
+            root = root.left;
+        }
+        return root;
+    }
 }
