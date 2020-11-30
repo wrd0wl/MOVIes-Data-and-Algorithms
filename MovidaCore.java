@@ -54,13 +54,46 @@ public class MovidaCore{
         String title = movie.getTitle();
         movieTitle.insert(title, movie);
     }
+	
+    public static void clear(){
+        movieTitle.clear();
+
+        /*here we will clear all current structures*/ 
+    }
+
+    public static int countMovies(){
+        return movieTitle.keyValues().toArray().length;
+    }
+	
+    public static boolean deleteMovieByTitle(String title) {
+        if (getMovieByTitle(title) != null) {
+            movieTitle.delete(title.toLowerCase());
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    public static Movie getMovieByTitle(String title){
+        return movieTitle.search(title.toLowerCase());        
+    }
+
+    public static Movie[] getAllMovies() {
+        Movie[] allMovies = new Movie[movieTitle.keyValues().toArray().length];
+        allMovies = movieTitle.keyValues().toArray(allMovies);
+        return allMovies;
+    }
 
     // TESTING PART. SOON WILL BE REMOVED
    public static void main(String[] args) throws FileNotFoundException {
         File newFile = new File("data.txt");
         loadFromFile(newFile);
-        Movie found = movieTitle.search("The Fugitive");
-        System.out.println(found.getDirector().getName());
+        System.out.println(countMovies());
+        boolean delete = deleteMovieByTitle("The Fugitive");
+        Movie[] movie = new Movie[getAllMovies().length];
+        movie = getAllMovies();
+	clear();
 	}
 
 }
