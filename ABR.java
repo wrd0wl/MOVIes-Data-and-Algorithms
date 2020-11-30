@@ -1,5 +1,8 @@
-public class ABR <K extends Comparable <K>, V> implements IDictionary <K, V> {
+import java.util.ArrayList;
+
+public class ABR<K extends Comparable<K>, V> implements IDictionary<K, V> {
     private Node root;
+    private ArrayList<V> values = new ArrayList<>();
 
     private class Node{
         public K key;
@@ -98,5 +101,27 @@ public class ABR <K extends Comparable <K>, V> implements IDictionary <K, V> {
             root = root.left;
         }
         return root;
+    }
+
+    public void clear(){
+        root = null;
+    }
+
+    private void traversal() {
+        traversalRec(root);
+    }
+
+    private void traversalRec(Node root) {
+        if (root != null) {
+            values.add(root.value);
+            traversalRec(root.left);
+            traversalRec(root.right);
+        }
+    }
+
+    public ArrayList<V> keyValues(){
+        values.removeAll(values);
+        traversal();
+        return values;
     }
 }
