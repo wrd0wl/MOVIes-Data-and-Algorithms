@@ -22,10 +22,10 @@ public class MovidaCore{
                     scanData[i] = scan.nextLine().split(":")[1].trim();
                 }
                 //Get data
-                scanTitle = scanData[0];
+                scanTitle = scanData[0].toLowerCase();
                 scanYear = Integer.parseInt(scanData[1]);
-                scanDirector = scanData[2];
-                scanCast = scanData[3].split(", ");
+                scanDirector = scanData[2].toLowerCase();
+                scanCast = scanData[3].toLowerCase().split(", ");
                 scanVotes = Integer.parseInt(scanData[4]);
 
                 Person director = new Person(scanDirector);
