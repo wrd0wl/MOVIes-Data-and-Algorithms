@@ -1,11 +1,13 @@
 
 public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     private BtreeNode root;             // radice del Btree
-    private class BtreeNode {
+    private int t;                       // grado del Btree
+    
+private class BtreeNode {
         private int size;          // Numero di Nodi
         private K key;           // Chiavi
         private V value;         // Dato della chiave
-        private BtreeNode left, right;  // Alberi a destra e sinistra
+        private BtreeNode left, right, children;  // Alberi a destra e sinistra
         
         public BtreeNode(int size, K key, V value) {
             this.size = size;
@@ -13,12 +15,9 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
             this.value = value;
             }
     }
+
     public Btree() {
-    }
-    
-    private int size(BtreeNode x) { 
-        if (x == null) return 0;  
-        else return x.size;   //Restituisce la grandezza del nodo
+    t=2;
     }
 
     public boolean isEmpty(BtreeNode x) {
@@ -26,7 +25,13 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     }
 
 
-     private BtreeNode min(BtreeNode x) {  //Restituisce la chiave minore
+    
+    private int size(BtreeNode x) { 
+        if (x == null) return 0;  
+        else return x.size;   //Restituisce la grandezza del nodo
+    }
+
+    private BtreeNode min(BtreeNode x) {  //Restituisce la chiave minore
         if (x.left == null) 
         return x; 
         else                
@@ -36,7 +41,7 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     @Override
     public V search(K key) {
         if(key == null)
-        throw new IllegalArgumentException("calls search() with an empty key");
+        throw new IllegalArgumentException("calls search() with a null key");
          return search(root, key);
 
     }
@@ -49,13 +54,13 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
         return search(x.left,  key);
         else if (cmp > 0) 
         return search(x.right, key);
-        else
+        else if (size(x) >= ((t*2)-1))
+        return search(x.children,  key);
         return x.value;
     }
 
     public void insert(K key, V val) {
-        if (key == null) 
-            throw new IllegalArgumentException("calls insert() with an empty key");
+        if (key == null) throw new IllegalArgumentException("calls put() with a null key");
         if (val == null) {
             delete(key);
             return;
@@ -71,7 +76,9 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
         x.left  = insert(x.left,  key, val);
         else if (cmp > 0) 
         x.right = insert(x.right, key, val);
-        else              
+        else if (size(x) >= ((t*2)-1))
+        x.children = insert(x.children,  key, val);
+        else            
         x.value   = val;
         x.size = 1 + size(x.left) + size(x.right);
         return x;
@@ -89,7 +96,7 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     @Override
     public V delete(K key) {
         if (key == null) 
-        throw new IllegalArgumentException("calls delete() with an empty key");
+        throw new IllegalArgumentException("calls delete() with a null key");
         root = delete(root, key);
         return root.value;
     }
@@ -98,15 +105,18 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     private BtreeNode delete(BtreeNode x, K key) {
         if (x == null) 
         return null;
-
         int cmp = key.compareTo(x.key);
         if      (cmp < 0) 
         x.left  = delete(x.left,  key);
         else if (cmp > 0) 
         x.right = delete(x.right, key);
+        else if (size(x) >= ((t*2)-1))
+        x.children = delete(x.children,  key);
         else {
-            if (x.right == null) return x.left;
-            if (x.left  == null) return x.right;
+            if (x.right == null) 
+            return x.left;
+            if (x.left  == null)
+            return x.right;
             BtreeNode t = x;
             x = min(t.right);
             x.right = deleteMin(t.right);
