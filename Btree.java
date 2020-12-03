@@ -1,7 +1,9 @@
+import java.util.ArrayList;
 
 public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     private BtreeNode root;             // radice del Btree
     private int t;                       // grado del Btree
+    private ArrayList<V> values = new ArrayList<>();
     
 private class BtreeNode {
         private int size;          // Numero di Nodi
@@ -17,6 +19,7 @@ private class BtreeNode {
     }
 
     public Btree() {
+    root=null;
     t=2;
     }
 
@@ -124,6 +127,28 @@ private class BtreeNode {
         }
         x.size = size(x.left) + size(x.right) + 1;
         return x;
+    }
+    public void clear(){
+        root = null;
+    }
+    private void traversal() {
+        traversalRec(root);
+    }
+
+    private void traversalRec(BtreeNode root) {
+        if (root != null) {
+            values.add(root.value);
+        if (root.children !=null)
+            traversalRec(root.children);    
+            traversalRec(root.left);
+            traversalRec(root.right);
+        }
+    }
+
+    public ArrayList<V> keyValues(){
+        values.removeAll(values);
+        traversal();
+        return values;
     }
 
     
