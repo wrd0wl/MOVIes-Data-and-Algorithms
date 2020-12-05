@@ -6,39 +6,19 @@ public class Btree<K extends Comparable<K>, V> implements IDictionary<K,V>{
     private ArrayList<V> values = new ArrayList<>();
     
 private class BtreeNode {
-        private int size;          // Numero di Nodi
-        private K key;           // Chiavi
-        private V value;         // Dato della chiave
-        private BtreeNode left, right, children;  // Alberi a destra e sinistra
+        private ArrayList<K> keys = new ArrayList<>();       // Chiavi
+        private ArrayList<V> value = new ArrayList<>();      // Dato della chiave
+        private BtreeNode left, right, middle;  // Alberi a destra e sinistra
         
-        public BtreeNode(int size, K key, V value) {
-            this.size = size;
-            this.key = key;
-            this.value = value;
+        public BtreeNode(K key, V value) {
+            this.keys.add(key);
+            this.value.add(value); 
             }
     }
 
     public Btree() {
     root=null;
     t=2;
-    }
-
-    public boolean isEmpty(BtreeNode x) {
-        return size(x) == 0;    //Restituisce vero se non contiente alcun valore
-    }
-
-
-    
-    private int size(BtreeNode x) { 
-        if (x == null) return 0;  
-        else return x.size;   //Restituisce la grandezza del nodo
-    }
-
-    private BtreeNode min(BtreeNode x) {  //Restituisce la chiave minore
-        if (x.left == null) 
-        return x; 
-        else                
-        return min(x.left);
     }
 
     @Override
@@ -49,18 +29,26 @@ private class BtreeNode {
 
     }
 
-    private V search(BtreeNode x, K key){    
-        int cmp = key.compareTo(x.key);
-        if (cmp == 0)
-        return x.value;
-        else if (cmp < 0) 
-        return search(x.left,  key);
-        else if (cmp > 0) 
-        return search(x.right, key);
-        else if (size(x) >= ((t*2)-1))
-        return search(x.children,  key);
-        return x.value;
-    }
+    private V search(BtreeNode x, K key){ 
+        V val=null;
+        boolean found=false;
+        for (int i=0; i<x.keys.size(); i++ ){
+            int cmp = key.compareTo(x.keys.get(i));
+            if (cmp == 0){
+            val= x.value.get(i);
+            i=x.keys.size();
+            found=true;} }
+                if (!found)
+                    if  (key.compareTo(x.keys.get(0))<0 )
+                        val= search(x.left,  key);
+                            else if (key.compareTo(x.keys.get(x.keys.size()-1))>0 )
+                            val= search(x.right, key);
+                                else
+                                val= search(x.middle, key);
+                    
+        return val;
+        }
+    
 
     public void insert(K key, V val) {
         if (key == null) throw new IllegalArgumentException("calls put() with a null key");
@@ -72,62 +60,61 @@ private class BtreeNode {
     }
 
     private BtreeNode insert(BtreeNode x, K key, V val) {
-        if (x == null) 
-        return new BtreeNode(1, key, val);
-        int cmp = key.compareTo(x.key);
-        if      (cmp < 0) 
-        x.left  = insert(x.left,  key, val);
-        else if (cmp > 0) 
-        x.right = insert(x.right, key, val);
-        else if (size(x) >= ((t*2)-1))
-        x.children = insert(x.children,  key, val);
-        else            
-        x.value   = val;
-        x.size = 1 + size(x.left) + size(x.right);
-        return x;
-    }
-
-    private BtreeNode deleteMin(BtreeNode x) {  //Rimuove la chiave minore presente nel nodo
-        if (x.left == null) 
-        return x.right;
-        x.left = deleteMin(x.left);
-        x.size = size(x.left) + size(x.right) + 1;
-        return x;
-    }
+        if(x == null)
+        return new BtreeNode(key, val);
+            else if (x.keys.size()>=(((t*2)-1)))
+                if  (key.compareTo(x.keys.get(0))<0 )
+                    x.left  = insert(x.left,  key, val);
+                    else if (key.compareTo(x.keys.get(x.keys.size()-1))>0 )
+                        x.right = insert(x.right, key, val);
+                        else
+                        x.middle = insert(x.middle, key, val);
+        else                
+        for (int i=0; i<x.keys.size(); i++ ){
+            int cmp = key.compareTo(x.keys.get(i));
+            if      (cmp < 0 ) {
+               x.keys.add(i, key);
+               x.value.add(i, val); 
+               i=x.keys.size();
+            }
+            else if (i==x.keys.size()-1){
+            x.keys.add(i+1, key);
+               x.value.add(i+1, val); 
+               i=x.keys.size();
+            }
+            }
+    return x;
+}
 
    
     @Override
-    public V delete(K key) {
+    public void delete(K key) {
         if (key == null) 
         throw new IllegalArgumentException("calls delete() with a null key");
-        root = delete(root, key);
-        return root.value;
+        delete(root, key);
+        
     }
 
 
-    private BtreeNode delete(BtreeNode x, K key) {
-        if (x == null) 
-        return null;
-        int cmp = key.compareTo(x.key);
-        if      (cmp < 0) 
-        x.left  = delete(x.left,  key);
-        else if (cmp > 0) 
-        x.right = delete(x.right, key);
-        else if (size(x) >= ((t*2)-1))
-        x.children = delete(x.children,  key);
-        else {
-            if (x.right == null) 
-            return x.left;
-            if (x.left  == null)
-            return x.right;
-            BtreeNode t = x;
-            x = min(t.right);
-            x.right = deleteMin(t.right);
-            x.left = t.left;
-        }
-        x.size = size(x.left) + size(x.right) + 1;
-        return x;
-    }
+    private void delete(BtreeNode x, K key) {
+        boolean found =false;
+        for (int i=0; i<x.keys.size(); i++ ){
+            int cmp = key.compareTo(x.keys.get(i));
+            if (cmp == 0){
+            x.value.remove(i);
+            x.keys.remove(i);
+            i=x.keys.size();
+            found=true;} }
+                if (!found)
+                    if  (key.compareTo(x.keys.get(0))<0 )
+                        delete(x.left,  key);
+                            else if (key.compareTo(x.keys.get(x.keys.size()-1))>0 )
+                            delete(x.right, key);
+                                else
+                                delete(x.middle, key);
+                    }
+    
+    
     public void clear(){
         root = null;
     }
@@ -136,13 +123,15 @@ private class BtreeNode {
     }
 
     private void traversalRec(BtreeNode root) {
-        if (root != null) {
-            values.add(root.value);
-        if (root.children !=null)
-            traversalRec(root.children);    
+        if (root != null) 
+            for(int i=0; i<root.value.size(); i++ )
+            values.add(root.value.get(i));
+        if (root.left !=null)    
             traversalRec(root.left);
+        if (root.right !=null)
             traversalRec(root.right);
-        }
+        if (root.middle !=null)
+            traversalRec(root.middle);
     }
 
     public ArrayList<V> keyValues(){
