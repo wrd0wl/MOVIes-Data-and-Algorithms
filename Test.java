@@ -29,7 +29,8 @@ public class Test {
         }
 
         //test searchMoviesByTitle, test searchMoviesByYear, searchMoviesByDirector
-        Movie[] movies = newMovida.searchMoviesByTitle("the fugitive, Die Hard. Contact");
+        Movie[] movie = newMovida.searchMoviesByTitle("Cape Fear");
+        Movie[] movies = newMovida.searchMoviesByTitle("a");
         Movie[] years = newMovida.searchMoviesInYear(1997);
         Movie[] directors = newMovida.searchMoviesDirectedBy("Martin Scorsese");
         Movie[] actors = newMovida.searchMoviesStarredBy("Bruce Willis");

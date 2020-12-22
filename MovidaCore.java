@@ -10,11 +10,17 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
 
     private IDictionary<String, Movie> movieTitle;
     private IDictionary<String, Person> moviePeople;
+    private IDictionary<Integer, ArrayList<Movie>> movieYear;
+    private IDictionary<String, ArrayList<Movie>> movieDirector;
+    private IDictionary<String, ArrayList<Movie>> movieActor;
     
     public MovidaCore(){
         //Default structures
         movieTitle = new ABR<>();
         moviePeople = new ABR<>();
+        movieYear = new ABR<>();
+        movieDirector = new ABR<>();
+        movieActor = new ABR<>();
     }
 
     //Scan file and get data
@@ -72,12 +78,34 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
 
             moviePeople.insert(movie.getCast()[i].getName(), movie.getCast()[i]);
         }
+
+        if(movieYear.search(movie.getYear()) == null){
+            movieYear.insert(movie.getYear(), new ArrayList<>());
+        }
+
+        movieYear.search(movie.getYear()).add(movie);
+
+        if(movieDirector.search(movie.getDirector().getName()) == null){
+            movieDirector.insert(movie.getDirector().getName(), new ArrayList<>());
+        }
+
+        movieDirector.search(movie.getDirector().getName()).add(movie);
+
+        for(Person actor : movie.getCast()){
+            if(movieActor.search(actor.getName()) == null){
+                movieActor.insert(actor.getName(), new ArrayList<>());
+            }
+            movieActor.search(actor.getName()).add(movie);
+        }
     }
 
 
     public void clear() {
         movieTitle.clear();
         moviePeople.clear();
+        movieYear.clear();
+        movieDirector.clear();
+        movieActor.clear();
 
         /*here we will clear all current structures*/ 
     }
@@ -93,8 +121,35 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
     public boolean deleteMovieByTitle(String title) {
         Movie movieFound = getMovieByTitle(title);
         if (movieFound != null) {
+
+            /*remove Movie by title*/ 
             movieTitle.delete(movieFound.getTitle());
-            /*todo director and cast*/
+
+            /*remove Movie from movieYear dictionary*/
+            if(movieYear.search(movieFound.getYear()).size() > 1){
+                movieYear.search(movieFound.getYear()).remove(movieFound);
+            }
+            else{
+                movieYear.delete(movieFound.getYear());
+            }
+
+            /*remove Movie from movieDirector dictionary*/
+            if(movieDirector.search(movieFound.getDirector().getName()).size() > 1){
+                movieDirector.search(movieFound.getDirector().getName()).remove(movieFound);
+            }
+            else{
+                movieDirector.delete(movieFound.getDirector().getName());
+            }
+
+            /*remove Movie from movieActor dictionary*/
+            for(Person cast : movieFound.getCast()){
+                if(movieActor.search(cast.getName()).size() > 1){
+                    movieActor.search(cast.getName()).remove(movieFound);
+                }
+                else{
+                    movieActor.delete(cast.getName());
+                }
+            }
             return true;
         } else {
             return false;
@@ -122,52 +177,36 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
     }
 
     public Movie[] searchMoviesByTitle(String title){
-        ArrayList<Movie> found = new ArrayList<>();
-        Movie[] movies = new Movie[movieTitle.keyValues().toArray().length];
-        movies = movieTitle.keyValues().toArray(movies);
-        for (Movie movie : movies) {
-            if(title.toLowerCase().trim().contains(movie.getTitle())){
-                found.add(movie);
-            }
-        }
-        return found.toArray(new Movie[0]);
-    }
-
-    public Movie[] searchMoviesInYear(Integer year){
-        ArrayList<Movie> found = new ArrayList<>();
-        Movie[] movies = new Movie[movieTitle.keyValues().toArray().length];
-        movies = movieTitle.keyValues().toArray(movies);
-        for (Movie movie : movies) {
-            if(year.equals(movie.getYear())){
-                found.add(movie);
-            }
-        }
-        return found.toArray(new Movie[0]);
-    }
-    
-    public Movie[] searchMoviesDirectedBy(String name){
-        ArrayList<Movie> found = new ArrayList<>();
-        Movie[] movies = new Movie[movieTitle.keyValues().toArray().length];
-        movies = movieTitle.keyValues().toArray(movies);
-        for (Movie movie : movies) {
-            if(name.toLowerCase().trim().equals(movie.getDirector().getName())){
-                found.add(movie);
-            }
-        }
-        return found.toArray(new Movie[0]);
-    }
-
-    public Movie[] searchMoviesStarredBy(String name){
-        ArrayList<Movie> found = new ArrayList<>();
-        Movie[] movies = new Movie[movieTitle.keyValues().toArray().length];
-        movies = movieTitle.keyValues().toArray(movies);
-        for (Movie movie : movies) {
-            for(Person cast : movie.getCast()){
-                if(name.toLowerCase().trim().equals(cast.getName())){
-                    found.add(movie);
+        ArrayList<Movie> foundMovies = new ArrayList<>();
+        if(getMovieByTitle(title) == null){
+            Movie[] movies = getAllMovies();
+            for (Movie movie : movies) {
+                if(movie.getTitle().contains(title.toLowerCase().trim())){
+                    foundMovies.add(movie);
                 }
             }
         }
-        return found.toArray(new Movie[0]);
+        else{
+            foundMovies.add(getMovieByTitle(title)); 
+        }
+        return foundMovies.toArray(new Movie[0]);
+    }
+
+    public Movie[] searchMoviesInYear(Integer year){
+        ArrayList<Movie> foundYear = new ArrayList<>();
+        foundYear.addAll(movieYear.search(year));
+        return foundYear.toArray(new Movie[0]);
+    }
+    
+    public Movie[] searchMoviesDirectedBy(String name){
+        ArrayList<Movie> foundDirector = new ArrayList<>();
+        foundDirector.addAll(movieDirector.search(name.toLowerCase().trim()));
+        return foundDirector.toArray(new Movie[0]);
+    }
+
+    public Movie[] searchMoviesStarredBy(String name){
+        ArrayList<Movie> foundActor = new ArrayList<>();
+        foundActor.addAll(movieActor.search(name.toLowerCase().trim()));
+        return foundActor.toArray(new Movie[0]);
     }
 }
