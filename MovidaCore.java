@@ -176,7 +176,7 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
         return allPeople;
     }
     
-    public Person[] getAllActors() {
+    private Person[] getAllActors() {
         Person[] actors = new Person[allActors.keyValues().toArray().length];
         actors = allActors.keyValues().toArray(actors);
         return actors;
