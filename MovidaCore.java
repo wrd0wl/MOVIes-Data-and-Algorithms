@@ -212,22 +212,18 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
     
     public Movie[] searchMostVotedMovies(Integer N){
         Movie[] movies = getAllMovies();
+        Movie[] votedMovies = new Movie[N];
         sorting.sort(movies, new VotesComparator());
         if(movies.length <= N){
-            Movie[] votedMovies = new Movie[N];
-
             for(int i = movies.length - 1, j = 0; i >= 0 && j < N; i --, j ++){
                 votedMovies[j] = movies[i];
             }
-            return votedMovies;
         }
         else{
-            Movie[] votedMovies = new Movie[N];
-
             for (int i = movies.length - 1, j = 0; i > (movies.length - 1) - N && j < N; i --, j ++){
                 votedMovies[j] = movies[i];
             }
-            return votedMovies;
         }
+        return votedMovies;
     }
 }
