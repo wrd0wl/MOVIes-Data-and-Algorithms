@@ -218,25 +218,27 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
     
     public Movie[] searchMostVotedMovies(Integer N){
         Movie[] movies = getAllMovies();
-        Movie[] votedMovies = new Movie[N];
         sorting.sort(movies, new VotesComparator());
         if(movies.length <= N){
+            Movie[] votedMovies = new Movie[movies.length];
             for(int i = movies.length - 1, j = 0; i >= 0 && j < N; i --, j ++){
                 votedMovies[j] = movies[i];
             }
+            return votedMovies;
         }
         else{
+            Movie[] votedMovies = new Movie[N];
             for (int i = movies.length - 1, j = 0; i > (movies.length - 1) - N && j < N; i --, j ++){
                 votedMovies[j] = movies[i];
             }
+            return votedMovies;
         }
-        return votedMovies;
     }
     public Movie[] searchMostRecentMovies(Integer N){
         Movie[] movies = getAllMovies();
         sorting.sort(movies, new YearsComparator());
         if(movies.length <= N){
-            Movie[] recentMovies = new Movie[N];
+            Movie[] recentMovies = new Movie[movies.length];
 
             for(int i = movies.length - 1, j = 0; i >= 0 && j < N; i --, j ++){
                 recentMovies[j] = movies[i];
@@ -256,7 +258,7 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
         Person[] actors = getAllActors();
         sorting.sort(actors, new ParticipateComparator());
         if(actors.length <= N){
-            Person[] participatedActor = new Person[N];
+            Person[] participatedActor = new Person[actors.length];
 
             for(int i = actors.length - 1, j = 0; i >= 0 && j < N; i --, j ++){
                 participatedActor[j] = actors[i];
