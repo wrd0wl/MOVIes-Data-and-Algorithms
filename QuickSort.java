@@ -48,15 +48,4 @@ public class QuickSort implements ISorting {
         array[sup] = temp;
         return sup;
     }
-
-    public boolean customComparable(String param, Movie A, Movie B) {
-        boolean min = false;
-        if (param.toLowerCase().trim() == "votes")
-            min = A.getVotes() < B.getVotes();
-        else if (param.toLowerCase().trim() == "year")
-            min = A.getYear() < B.getYear();
-        return min;
-
-    }
-
 }
