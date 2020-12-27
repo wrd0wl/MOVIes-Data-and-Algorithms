@@ -23,13 +23,24 @@
 public class Person {
 
 	private String name;
+	private Integer participate;
 	
 	public Person(String name) {
 		this.name = name;
+		this.participate = 0;
 	}
 	
 	public String getName(){
 		return this.name;
+	}
+	public Integer getParticipate(){
+		return this.participate;
+	}
+	public void increase(){
+		this.participate++;
+	}
+	public void decrease(){
+		this.participate--;
 	}
 	
 }
