@@ -175,6 +175,12 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
         allPeople = moviePeople.keyValues().toArray(allPeople);
         return allPeople;
     }
+    
+    public Person[] getAllActors() {
+        Person[] actors = new Person[allActors.keyValues().toArray().length];
+        actors = allActors.keyValues().toArray(actors);
+        return actors;
+    }
 
     public Movie[] searchMoviesByTitle(String title){
         ArrayList<Movie> foundMovies = new ArrayList<>();
@@ -244,6 +250,26 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
                 recentMovies[j] = movies[i];
             }
             return recentMovies;
+        }
+    }
+    public Person[] searchMostActiveActors(Integer N){
+        Person[] actors = getAllActors();
+        sorting.sort(actors, new ParticipateComparator());
+        if(actors.length <= N){
+            Person[] participatedActor = new Person[N];
+
+            for(int i = actors.length - 1, j = 0; i >= 0 && j < N; i --, j ++){
+                participatedActor[j] = actors[i];
+            }
+            return participatedActor;
+        }
+        else{
+            Person[] participatedActor = new Person[N];
+
+            for (int i = actors.length - 1, j = 0; i > (actors.length - 1) - N && j < N; i --, j ++){
+                participatedActor[j] = actors[i];
+            }
+            return participatedActor;
         }
     }
 
