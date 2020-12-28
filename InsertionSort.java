@@ -1,7 +1,7 @@
 
 import java.util.Comparator;
 
-public class insertionSort implements ISorting {
+public class InsertionSort implements ISorting {
 @Override
 public <T> void sort(T[] array, Comparator<T> parameter){
     insertionSorts(array, parameter);
