@@ -7,23 +7,86 @@ import java.util.Scanner;
 
 
 public class MovidaCore implements IMovidaDB, IMovidaSearch{
-
+    
+    private MapImplementation map;
+    private SortingAlgorithm sort;
+    
     private IDictionary<String, Movie> movieTitle;
-    private IDictionary<String, Person> moviePeople;
+    private IDictionary<String, Person> allDirectors;
+    private IDictionary<String, Person> allActors;
     private IDictionary<Integer, ArrayList<Movie>> movieYear;
     private IDictionary<String, ArrayList<Movie>> movieDirector;
     private IDictionary<String, ArrayList<Movie>> movieActor;
-    
+    private ISorting sorting;
+
+    /********** Default Structures and Configurations **********/
     public MovidaCore(){
-        //Default structures
-        movieTitle = new ABR<>();
-        moviePeople = new ABR<>();
-        movieYear = new ABR<>();
-        movieDirector = new ABR<>();
-        movieActor = new ABR<>();
+        this.movieTitle = new ABR<>();
+        this.allDirectors = new ABR<>();
+        this.allActors = new ABR<>();
+        this.movieYear = new ABR<>();
+        this.movieDirector = new ABR<>();
+        this.movieActor = new ABR<>();
+        this.sorting = new QuickSort();
+        this.map = MapImplementation.ABR;
+        this.sort = SortingAlgorithm.QuickSort;
+    }
+    
+    /********** IMovidaConfig Implementation **********/ 
+    public boolean setSort(SortingAlgorithm a){
+        boolean configured = false;
+        if(a == SortingAlgorithm.InsertionSort || a == SortingAlgorithm.QuickSort){
+            if(a != sort){
+                if(a == SortingAlgorithm.InsertionSort){
+                    sort = SortingAlgorithm.InsertionSort;
+                    sorting = new InsertionSort();
+                }
+                else{
+                    sort = SortingAlgorithm.QuickSort;
+                    sorting = new QuickSort();
+                }
+                configured = true;
+            } 
+        }
+        return configured;
     }
 
-    //Scan file and get data
+    public boolean setMap(MapImplementation m){
+        boolean configured = false;
+        if(m == MapImplementation.ABR || m == MapImplementation.BTree){
+            if(m != map){
+                Movie[] movies = getAllMovies();
+                clear();
+                if(m == MapImplementation.BTree){
+                    map = MapImplementation.BTree;
+                    movieTitle = new Btree<>();
+                    allDirectors = new Btree<>();
+                    allActors = new Btree<>();
+                    movieYear = new Btree<>();
+                    movieDirector = new Btree<>();
+                    movieActor = new Btree<>();
+                }
+                else{
+                    map = MapImplementation.ABR;
+                    movieTitle = new ABR<>();
+                    allDirectors = new ABR<>();
+                    allActors = new ABR<>();
+                    movieYear = new ABR<>();
+                    movieDirector = new ABR<>();
+                    movieActor = new ABR<>();
+                }
+                for(Movie movie : movies){
+                    implementStructures(movie);
+                }
+                configured = true;
+            }
+        }
+        return configured;
+    }
+    
+    
+
+    /********** IMovidaDB Implementation **********/
     public void loadFromFile(File f) throws MovidaFileException { 
         try {
             String scanTitle;
@@ -67,57 +130,24 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
         }
     }
 
-    private void implementStructures(Movie movie) {
-        movieTitle.insert(movie.getTitle(), movie);
-        
-        moviePeople.insert(movie.getDirector().getName(), movie.getDirector());
-
-        for (int i = 0; i < movie.getCast().length; i++){
-
-            //todo actors
-
-            moviePeople.insert(movie.getCast()[i].getName(), movie.getCast()[i]);
-        }
-
-        if(movieYear.search(movie.getYear()) == null){
-            movieYear.insert(movie.getYear(), new ArrayList<>());
-        }
-
-        movieYear.search(movie.getYear()).add(movie);
-
-        if(movieDirector.search(movie.getDirector().getName()) == null){
-            movieDirector.insert(movie.getDirector().getName(), new ArrayList<>());
-        }
-
-        movieDirector.search(movie.getDirector().getName()).add(movie);
-
-        for(Person actor : movie.getCast()){
-            if(movieActor.search(actor.getName()) == null){
-                movieActor.insert(actor.getName(), new ArrayList<>());
-            }
-            movieActor.search(actor.getName()).add(movie);
-        }
-    }
-
 
     public void clear() {
         movieTitle.clear();
-        moviePeople.clear();
+        allDirectors.clear();
+        allActors.clear();
         movieYear.clear();
         movieDirector.clear();
         movieActor.clear();
-
-        /*here we will clear all current structures*/ 
     }
 
     public int countMovies() {
-        return movieTitle.keyValues().toArray().length;
+        return getAllMovies().length;
     }
 
     public int countPeople() {
-        return moviePeople.keyValues().toArray().length;
+        return getAllPeople().length;
     }
-
+ 
     public boolean deleteMovieByTitle(String title) {
         Movie movieFound = getMovieByTitle(title);
         if (movieFound != null) {
@@ -141,7 +171,16 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
                 movieDirector.delete(movieFound.getDirector().getName());
             }
 
-            /*remove Movie from movieActor dictionary*/
+            /*remove Person from allDirectors*/
+            if(allDirectors.search(movieFound.getDirector().getName()).getParticipate() > 1){
+                allDirectors.search(movieFound.getDirector().getName()).decrease();
+            }
+            else{
+                allDirectors.delete(movieFound.getDirector().getName());
+            }
+            
+
+            /*remove Movie from movieActor dictionary and Person from allActors*/
             for(Person cast : movieFound.getCast()){
                 if(movieActor.search(cast.getName()).size() > 1){
                     movieActor.search(cast.getName()).remove(movieFound);
@@ -149,7 +188,15 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
                 else{
                     movieActor.delete(cast.getName());
                 }
+
+                if(allActors.search(cast.getName()).getParticipate() > 1){
+                    allActors.search(cast.getName()).decrease();
+                }
+                else{
+                    allActors.delete(cast.getName());
+                }
             }
+
             return true;
         } else {
             return false;
@@ -160,8 +207,13 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
         return movieTitle.search(title.toLowerCase().trim());        
     }
 
-    public Person getPersonByName(String name) {
-        return moviePeople.search(name.toLowerCase().trim());
+     public Person getPersonByName(String name) {
+        if(allDirectors.search(name.toLowerCase().trim()) != null){
+            return allDirectors.search(name.toLowerCase().trim());
+        }
+        else{
+            return allActors.search(name.toLowerCase().trim());
+        }
     }
 
     public Movie[] getAllMovies() {
@@ -170,17 +222,14 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
         return allMovies;
     }
 
-    public Person[] getAllPeople() {
-        Person[] allPeople = new Person[moviePeople.keyValues().toArray().length];
-        allPeople = moviePeople.keyValues().toArray(allPeople);
-        return allPeople;
+      public Person[] getAllPeople() {
+        ArrayList<Person> allPeople = new ArrayList<>();
+        allPeople.addAll(allDirectors.keyValues());
+        allPeople.addAll(allActors.keyValues());
+        return allPeople.toArray(new Person[0]);
     }
     
-    private Person[] getAllActors() {
-        Person[] actors = new Person[allActors.keyValues().toArray().length];
-        actors = allActors.keyValues().toArray(actors);
-        return actors;
-    }
+   /********** IMovidaSearch Implementation **********/
 
     public Movie[] searchMoviesByTitle(String title){
         ArrayList<Movie> foundMovies = new ArrayList<>();
@@ -273,6 +322,45 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch{
             }
             return participatedActor;
         }
+    }
+    
+    /********** Auxiliary Methods **********/
+    
+    private void implementStructures(Movie movie) {
+        movieTitle.insert(movie.getTitle(), movie);
+
+        if(movieYear.search(movie.getYear()) == null){
+            movieYear.insert(movie.getYear(), new ArrayList<>());
+        }
+
+        movieYear.search(movie.getYear()).add(movie);
+
+        if(movieDirector.search(movie.getDirector().getName()) == null){
+            movieDirector.insert(movie.getDirector().getName(), new ArrayList<>());
+            allDirectors.insert(movie.getDirector().getName(), movie.getDirector());
+        }
+
+        movieDirector.search(movie.getDirector().getName()).add(movie);
+        allDirectors.search(movie.getDirector().getName()).increase();
+
+        for(Person actor : movie.getCast()){
+            if(allActors.search(actor.getName()) == null){
+                allActors.insert(actor.getName(), actor);
+            }
+
+            allActors.search(actor.getName()).increase();
+            
+            if(movieActor.search(actor.getName()) == null){
+                movieActor.insert(actor.getName(), new ArrayList<>());
+            }
+            movieActor.search(actor.getName()).add(movie);
+        }
+    }
+    
+    private Person[] getAllActors() {
+        Person[] actors = new Person[allActors.keyValues().toArray().length];
+        actors = allActors.keyValues().toArray(actors);
+        return actors;
     }
 
 }
