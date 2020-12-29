@@ -32,6 +32,9 @@ private class BtreeNode {
     private V search(BtreeNode x, K key){ 
         V val=null;
         boolean found=false;
+        if (x == null){
+            return null;
+        }
         for (int i=0; i<x.keys.size(); i++ ){
             int cmp = key.compareTo(x.keys.get(i));
             if (cmp == 0){
