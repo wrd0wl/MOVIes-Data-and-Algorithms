@@ -368,11 +368,6 @@ public class MovidaCore implements IMovidaDB, IMovidaSearch, ICollaborations{
     public Collaboration[] maximizeCollaborationsInTheTeamOf(Person actor){
         Collaboration[] collaboration = createCollaborations(actor);
         sorting.sort(collaboration, new ScoreComparator());
-        for(int i = 0; i < collaboration.length / 2; i++){
-            Collaboration temp = collaboration[i];
-            collaboration[i] = collaboration[collaboration.length - i - 1];
-            collaboration[collaboration.length - i - 1] = temp;
-        }
         Collaboration[] max = maximize(new ArrayList<>(Arrays.asList(collaboration)));
         return max;
     }
