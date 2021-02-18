@@ -14,4 +14,4 @@ A university project written in Java.
 
 ### How to use:
 - Create an instance of MovidaCore.
-- Load the formatted data from file (as in *example0.txt* and *example1.txt*) using the method `loadFromFile(File f)`.
+- Load the formatted data from file (as in **example0.txt** and **example1.txt**) using the method `loadFromFile(File f)`.
