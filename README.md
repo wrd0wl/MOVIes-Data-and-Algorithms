@@ -1,7 +1,7 @@
-#MOVIes Data and Algorithms
+# MOVIes Data and Algorithms
 An university project written in Java.
 
-###Implemented dictionaries and algorithms.
+### Implemented dictionaries and algorithms.
 - Dictionaries:
   - Binary Search Tree.
   - B-Tree.
@@ -12,6 +12,6 @@ An university project written in Java.
   - Breadth-first search.
   - Kruskal algorithm.
 
-###How to use:
+### How to use:
 - Create an instance of MovidaCore.
 - Load the formatted data from file (as in example0.txt and example1.txt) using the method `loadFromFile(f)`.
