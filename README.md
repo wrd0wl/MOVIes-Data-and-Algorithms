@@ -1,5 +1,5 @@
 # MOVIes Data and Algorithms
-An university project written in Java.
+A university project written in Java.
 
 ### Implemented dictionaries and algorithms.
 - Dictionaries:
